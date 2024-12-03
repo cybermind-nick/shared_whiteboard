@@ -4,7 +4,7 @@ WORKDIR /server
 
 COPY server.py requirements.txt server/
 
-RUN python -m pip install -r requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8080
 
