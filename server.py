@@ -4,7 +4,7 @@ import json
 
 HOST = "127.0.0.1"
 PORT = 8080
-BUFFER_SIZE = 4096
+BUFFER_SIZE = 8192
 
 canvas_state = []
 
