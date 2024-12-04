@@ -1,11 +1,11 @@
-FROM python:3.10
+FROM python:3.10-slim
 
-WORKDIR /server
+WORKDIR /app
 
-COPY server.py requirements.py server/
+COPY requirements.txt .
 
-RUN python -m pip install --no-cache-dir -r requirements.py
+RUN apt-get update && apt-get install -y python3-tk && apt-get clean
 
-EXPOSE 8080
+RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "./server.py"]
+COPY . .
