@@ -1,18 +1,27 @@
 import socket
 import threading
 import json
+import redis
 
 HOST = "127.0.0.1"
 PORT = 8080
 BUFFER_SIZE = 8192
 
+redis_client = redis.Redis(host='127.0.0.1')
+
 canvas_state = []
 
 def handle_client(client_socket, client_set, up_to_date=False):
     global canvas_state
-    print("Global canvas state: ", canvas_state)
+    global redis_client
+    # print("Global canvas state: ", canvas_state)
+    try:
+        canvas_state = json.loads(redis_client.get('canvas').decode())
+    except AttributeError: # canvas does not yet exist
+        canvas_state = []
+
     if not up_to_date and len(client_set) > 1:
-        if canvas_state != b'':
+        if canvas_state != []:
             client_socket.sendall(json.dumps(canvas_state).encode())
     up_to_date = True
     while True:
@@ -28,6 +37,7 @@ def handle_client(client_socket, client_set, up_to_date=False):
                         decoded_data = json.loads(data.decode())
                         print(data)
                         canvas_state += decoded_data
+                        redis_client.set('canvas', json.dumps(canvas_state).encode())
                     except socket.error:
                         # Handle socket errors when sending data to clients
                         print("Socket error occurred while sending data to a client.")
@@ -36,6 +46,8 @@ def handle_client(client_socket, client_set, up_to_date=False):
                 decoded_data = json.loads(data.decode())
                 print(decoded_data)
                 canvas_state += decoded_data
+                redis_client.set('canvas', json.dumps(canvas_state).encode())
+
 
         except socket.error:
             # Handle socket errors when receiving data from the client
