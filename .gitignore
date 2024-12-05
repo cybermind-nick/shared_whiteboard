@@ -1,2 +1,4 @@
 venv/
 .venv/
+alter-compose.yaml
+try_redis.py
