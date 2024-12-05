@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-cluster
+spec:
+  serviceName: redis
+  replicas: 3
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7.0
+        ports:
+        - containerPort: 6379
+        command:
+          - "redis-server"
+          - "--cluster-enabled"
+          - "yes"
+          - "--cluster-config-file"
+          - "/data/nodes.conf"
+          - "--appendonly"
+          - "yes"
+        env:
+        - name: REDIS_PASSWORD
+          value: "mysecurepassword"
+        - name: REDIS_MAXMEMORY
+          value: "256mb"
+        volumeMounts:
+        - name: data
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+
