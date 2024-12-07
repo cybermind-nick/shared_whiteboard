@@ -1,10 +1,28 @@
 version: "3.9"
 services:
   server:
-    build: .
+    image: nickifeajika/whiteboard-server
     command: python server.py
+    # image: notme/whiteboard-server # for testing
+    # command: python try_redis.py
     ports:
       - "5000:5000"
+    depends_on:
+      - redis
+    networks:
+      - servernet
+
+  redis:
+    image: redis  # Use the official Redis image
+    # ports:
+    # - "6379:6379"  # Expose Redis port (optional, for local access)
+    command: redis-server
+    networks:
+      - servernet
+
+networks:
+  servernet:
+    driver: bridge
 
   # client:
   #   build: .
