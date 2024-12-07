@@ -4,8 +4,8 @@ WORKDIR /app
 
 COPY requirements.txt .
 
+COPY server.py .
+
 RUN apt-get update && apt-get install -y python3-tk && apt-get clean
 
 RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
