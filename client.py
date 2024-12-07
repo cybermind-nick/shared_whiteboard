@@ -6,7 +6,7 @@ from tkinter import Canvas, messagebox, Scale, Button
 from queue import Queue
 
 HOST = "127.0.0.1"
-PORT = 8080
+PORT = 5000 # 8080
 
 class WhiteboardApp:
     def __init__(self, root, server_socket):
