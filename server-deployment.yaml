@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whiteboard-server-deployment
+  labels:
+    app: whiteboard-server
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: whiteboard-server
+  template:
+    metadata:
+      labels:
+        app: whiteboard-server
+    spec:
+      containers:
+        - name: whiteboard-server
+          image: whiteboard-server
+          build:
+            buildArgs:
+              CONTEXT: .
+            dockerfile: dockerfile
