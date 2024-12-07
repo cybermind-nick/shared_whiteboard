@@ -6,7 +6,7 @@ services:
     ports:
       - "5000:5000"
 
-  client:
-    build: .
-    command: python client.py
+  # client:
+  #   build: .
+  #   command: python client.py
 
