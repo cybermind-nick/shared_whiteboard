@@ -5,6 +5,11 @@ services:
     command: python3 server.py
     # image: notme/whiteboard-server # for testing
     # command: python try_redis.py
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=a-weak-password
+      - REDIS_MASTER_PASSWORD=a-weak-password
+      - REDIS_PORT=6379
     ports:
       - "5000:5000"
     depends_on:
