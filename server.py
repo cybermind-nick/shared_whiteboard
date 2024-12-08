@@ -5,7 +5,7 @@ import redis
 import redis.exceptions
 import os
 
-HOST = ["127.0.0.1"][0]
+HOST = ["0.0.0.0", "127.0.0.1"][0]
 # PORT = 8080
 PORT = 5000
 BUFFER_SIZE = 8192
@@ -14,9 +14,8 @@ REDIS_PASSWORD = ""
 REDIS_HOST = ""
 REDIS_PORT = 6379
 
-# redis_client = redis.Redis(host='redis')
-redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, ssl=True)
-# print(redis_client.)
+redis_client = redis.Redis(host='redis', retry_on_error=[socket.gaierror, redis.exceptions.ConnectionError])
+# redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, ssl=True)
 # redis_client.set('canvas', b'')
 
 redis_client.flushall()
