@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whiteboard-server-deployment
+  labels:
+    app: whiteboard-server
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: whiteboard-server
+  template:
+    metadata:
+      labels:
+        app: whiteboard-server
+    spec:
+      containers:
+        - name: whiteboard-server
+          image: nickifeajika/whiteboard-server
+          env:
+          - name: REDIS_PASSWORD
+            value: a-weak-password
+          - name: REDIS_MASTER_PASSWORD
+            value: a-weak-password
+          - name: REDIS_HOST
+            value: redis
+          - name: REDIS_PORT
+            value: "6379"
+      # affinity:
+      #   podAntiAffinity:
+      #     requiredDuringSchedulingIgnoreDuringExecution:
+      #     - labelSelector:
+      #       matchExpressions:
+      #       - key: app
+      #         operator: In
+      #         values:
+      #         - whiteboard-server

@@ -6,7 +6,8 @@ from tkinter import Canvas, messagebox, Scale, Button
 from queue import Queue
 
 HOST = "127.0.0.1"
-PORT = 8080
+PORT = 5000
+# PORT = 8080
 
 class WhiteboardApp:
     def __init__(self, root, server_socket):
@@ -101,19 +102,23 @@ class WhiteboardApp:
 def receive_points(canvas, server_socket, data_queue):
     buffer = b""
     while True:
-        data = server_socket.recv(4096)  # Use a reasonable buffer size
-        if not data:
-            break
-        if data == b'clear':
-            data_queue.put("clear")
-        else:
-            buffer += data
-            try:
-                while buffer:
-                    points, buffer = json.loads(buffer.decode()), b""
-                    data_queue.put(points)
-            except json.JSONDecodeError:
-                pass
+        try:
+            data = server_socket.recv(4096)  # Use a reasonable buffer size
+            if not data:
+                break
+            if data == b'clear':
+                data_queue.put("clear")
+            else:
+                buffer += data
+                try:
+                    while buffer:
+                        points, buffer = json.loads(buffer.decode()), b""
+                        data_queue.put(points)
+                except json.JSONDecodeError:
+                    pass
+        except ConnectionAbortedError:
+            exit(0)
+
 
 def process_data(data_queue, canvas):
     while True:
@@ -123,6 +128,7 @@ def process_data(data_queue, canvas):
         else:
             for x, y, width, color in data:
                 canvas.create_oval(x, y, x + width, y + width, fill=color, width=0)
+
 
 def main():
     root = tk.Tk()
@@ -138,17 +144,30 @@ def main():
         messagebox.showerror("Connection Error", "Could not connect to the server.")
         return
 
+    
     app = WhiteboardApp(root, server_socket)
-    root.protocol("WM_DELETE_WINDOW", lambda: root.quit)
+
+    def on_closing():
+        server_socket.close()
+        app.root.quit()
+        app.root.destroy()
+        exit(0)
+
+    app.root.protocol("WM_DELETE_WINDOW", on_closing) # app.root & root are the same
 
     data_queue = Queue()
     receiver_thread = threading.Thread(target=receive_points, args=(app, server_socket, data_queue))
+    receiver_thread.daemon = True
     receiver_thread.start()
 
     data_processor_thread = threading.Thread(target=process_data, args=(data_queue, app.canvas))
+    data_processor_thread.daemon = True
     data_processor_thread.start()
 
-    root.mainloop()
+    app.root.mainloop()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except:
+        exit(0)

@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  server:
+    image: nickifeajika/whiteboard-server
+    command: python3 server.py
+    # image: notme/whiteboard-server # for testing
+    # command: python try_redis.py
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=a-weak-password
+      - REDIS_MASTER_PASSWORD=a-weak-password
+      - REDIS_PORT=6379
+    ports:
+      - "5000:5000"
+    depends_on:
+      - redis
+    networks:
+      - servernet
+
+  redis:
+    image: redis
+    # ports:
+    # - "6379:6379"  # Expose Redis port (optional, for local access)
+    command: redis-server
+    networks:
+      - servernet
+
+networks:
+  servernet:
+    driver: bridge
+
+  # client:
+  #   build: .
+  #   command: python client.py
+
