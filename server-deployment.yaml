@@ -16,8 +16,22 @@ spec:
     spec:
       containers:
         - name: whiteboard-server
-          image: whiteboard-server
-          build:
-            buildArgs:
-              CONTEXT: .
-            dockerfile: dockerfile
+          image: nickifeajika/whiteboard-server
+          env:
+          - name: REDIS_PASSWORD
+            value: a-weak-password
+          - name: REDIS_MASTER_PASSWORD
+            value: a-weak-password
+          - name: REDIS_HOST
+            value: redis
+          - name: REDIS_PORT
+            value: "6379"
+      # affinity:
+      #   podAntiAffinity:
+      #     requiredDuringSchedulingIgnoreDuringExecution:
+      #     - labelSelector:
+      #       matchExpressions:
+      #       - key: app
+      #         operator: In
+      #         values:
+      #         - whiteboard-server
