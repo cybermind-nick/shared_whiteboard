@@ -10,11 +10,13 @@ HOST = ["0.0.0.0", "127.0.0.1"][0]
 PORT = 5000
 BUFFER_SIZE = 8192
 
-REDIS_PASSWORD = ""
-REDIS_HOST = ""
-REDIS_PORT = 6379
+REDIS_PASSWORD = os.environ["REDIS_PASSWORD"]
+REDIS_MASTER_PASSWORD = os.environ["REDIS_MASTER_PASSWORD"]
+REDIS_HOST = os.environ["REDIS_HOST"]
+REDIS_PORT = int(os.environ["REDIS_PORT"])
 
-redis_client = redis.Redis(host='redis', retry_on_error=[socket.gaierror, redis.exceptions.ConnectionError])
+# redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, retry_on_error=[socket.gaierror, redis.exceptions.ConnectionError])
+redis_client = redis.RedisCluster(host=REDIS_HOST, port=REDIS_PORT)
 # redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, ssl=True)
 # redis_client.set('canvas', b'')
 
