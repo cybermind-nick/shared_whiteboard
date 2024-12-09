@@ -80,7 +80,7 @@ def handle_client(client_socket, client_set, up_to_date=False):
     if len(client_set) == 0:
         print(f"No connected clients. Shutting down...")
         redis_client.flushall()
-        os._exit(0)
+        # os._exit(0)
 
 def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
