@@ -5,8 +5,8 @@ import json
 from tkinter import Canvas, messagebox, Scale, Button
 from queue import Queue
 
-HOST = "127.0.0.1"
-PORT = 5000
+HOST = ["127.0.0.1", "10.102.151.118"][0]
+PORT = [80, 5000][0]
 # PORT = 8080
 
 class WhiteboardApp:
@@ -139,6 +139,7 @@ def main():
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        print("Connect to server...")
         server_socket.connect((HOST, PORT))
     except ConnectionRefusedError:
         messagebox.showerror("Connection Error", "Could not connect to the server.")
