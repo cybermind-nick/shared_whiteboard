@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: whiteboard-server-deployment
+  name: whiteboard-server
   labels:
     app: whiteboard-server
 spec:
@@ -26,6 +26,8 @@ spec:
             value: redis
           - name: REDIS_PORT
             value: "6379"
+          ports:
+            - containerPort: 5000
       # affinity:
       #   podAntiAffinity:
       #     requiredDuringSchedulingIgnoreDuringExecution:
@@ -35,3 +37,15 @@ spec:
       #         operator: In
       #         values:
       #         - whiteboard-server
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whiteboard-server
+spec:
+  ports:
+    - port: 80
+      targetPort: 5000
+  selector:
+    any-name: whiteboard-server
