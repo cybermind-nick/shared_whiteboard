@@ -3,6 +3,7 @@ import threading
 import json
 import redis
 import redis.exceptions
+from redis.sentinel import Sentinel
 import os
 
 HOST = ["0.0.0.0", "127.0.0.1"][0]
@@ -15,8 +16,13 @@ REDIS_MASTER_PASSWORD = os.environ["REDIS_MASTER_PASSWORD"]
 REDIS_HOST = os.environ["REDIS_HOST"]
 REDIS_PORT = int(os.environ["REDIS_PORT"])
 
-# redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, retry_on_error=[socket.gaierror, redis.exceptions.ConnectionError])
-redis_client = redis.RedisCluster(host=REDIS_HOST, port=REDIS_PORT)
+sentinel = Sentinel([('sentinel', 5000)])
+
+redis_client = sentinel.master_for('mymaster', password=REDIS_PASSWORD)
+
+# redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, retry_on_error=[socket.gaierror, redis.exceptions.ConnectionError])
+# redis_client = redis.RedisCluster(host=REDIS_HOST, port=REDIS_PORT)
+# redis_client = redis.RedisCluster(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD)
 # redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, ssl=True)
 # redis_client.set('canvas', b'')
 
