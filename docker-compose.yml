@@ -2,7 +2,7 @@ version: "3.9"
 services:
   server:
     image: nickifeajika/whiteboard-server
-    command: python3 server.py
+    # command: python3 server.py
     # image: notme/whiteboard-server # for testing
     # command: python try_redis.py
     environment:
