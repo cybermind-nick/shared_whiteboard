@@ -7,6 +7,7 @@ from queue import Queue
 
 HOST = ["127.0.0.1", "10.102.151.118"][0]
 PORT = [80, 5000][0]
+BUFFER_SIZE = 8192
 # PORT = 8080
 
 class WhiteboardApp:
@@ -103,7 +104,7 @@ def receive_points(canvas, server_socket, data_queue):
     buffer = b""
     while True:
         try:
-            data = server_socket.recv(4096)  # Use a reasonable buffer size
+            data = server_socket.recv(BUFFER_SIZE)  # Use a reasonable buffer size
             if not data:
                 break
             if data == b'clear':
