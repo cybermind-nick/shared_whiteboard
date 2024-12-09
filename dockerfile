@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV PYTHONUNBUFFERED=1
 
 # command specified in compose
-# CMD ["python", "server.py"]
+CMD ["python", "server.py"]
