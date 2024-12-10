@@ -1,0 +1,41 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "panels": [
+    {
+      "title": "Active Connections",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "whiteboard_connections_total",
+          "legendFormat": "Connections"
+        }
+      ]
+    },
+    {
+      "title": "Drawing Actions",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(whiteboard_draw_actions_total[5m])",
+          "legendFormat": "Actions/sec"
+        }
+      ]
+    },
+    {
+      "title": "Redis Operation Latency",
+      "type": "heatmap",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(whiteboard_redis_operation_seconds_bucket[5m])",
+          "legendFormat": "{{le}}"
+        }
+      ]
+    }
+  ]
+}
