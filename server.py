@@ -27,7 +27,8 @@ redis_client = sentinel.master_for('mymaster', password=REDIS_PASSWORD)
 # redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, ssl=True)
 # redis_client.set('canvas', b'')
 
-redis_client.flushall()
+# if json.loads(redis_client.get("new_run")):
+#     redis_client.flushall()
 
 canvas_state = []
 
@@ -81,7 +82,8 @@ def handle_client(client_socket, client_set, up_to_date=False):
 
     print(f"removing client: {client_socket}")
     client_set.remove(client_socket)
-    redis_client.decr("client_count")
+    gloabl_client_count = redis_client.decr("client_count")
+    print("Global Client Count: ", gloabl_client_count)
     client_socket.close()
 
     if len(client_set) == 0 and json.loads(redis_client.get("client_count")) <= 0:
@@ -103,11 +105,14 @@ def update_state(client_set):
                 print("Canvas doesn't exist")
 
 def main():
+    global redis_client
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         server_socket.bind((HOST, PORT))
         server_socket.listen(5)
 
         print("Server is listening on {}:{}".format(HOST, PORT))
+
+        redis_client.set("new_run", int(False))
 
         client_set = set()
 
@@ -121,10 +126,10 @@ def main():
                 print("Accepted connection from:", client_address)
 
                 client_set.add(client_socket)
-                if not redis_client.get("client_count"):
-                    redis_client.set("client_count", 1) # first client
-                else:
-                    redis_client.incr("client_count")
+                # if not redis_client.get("client_count"):
+                #     redis_client.set("client_count", 1) # first client
+                # else:
+                redis_client.incr("client_count")
 
                 client_thread = threading.Thread(target=handle_client, args=(client_socket, client_set))
                 client_thread.daemon = True
