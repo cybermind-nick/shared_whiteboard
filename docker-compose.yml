@@ -1,35 +1,115 @@
-version: "3.9"
+version: '3.8'
 services:
-  server:
-    image: nickifeajika/whiteboard-server
-    # command: python3 server.py
-    # image: notme/whiteboard-server # for testing
-    # command: python try_redis.py
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PASSWORD=a-weak-password
-      - REDIS_MASTER_PASSWORD=a-weak-password
-      - REDIS_PORT=6379
+  redis-cluster:
+    image: redis:7.0
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --protected-mode no --port 7000
     ports:
-      - "5000:5000"
-    depends_on:
-      - redis
+      - "7000:7000"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7000", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
     networks:
-      - servernet
+      - whiteboard-network
 
-  redis:
-    image: redis
-    # ports:
-    # - "6379:6379"  # Expose Redis port (optional, for local access)
-    command: redis-server
+  redis-cluster-2:
+    image: redis:7.0
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --protected-mode no --port 7001
+    ports:
+      - "7001:7001"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7001", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
     networks:
-      - servernet
+      - whiteboard-network
+
+  redis-cluster-3:
+    image: redis:7.0
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --protected-mode no --port 7002
+    ports:
+      - "7002:7002"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7002", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+    networks:
+      - whiteboard-network
+
+  redis-cluster-init:
+    image: redis:7.0
+    depends_on:
+      redis-cluster:
+        condition: service_healthy
+      redis-cluster-2:
+        condition: service_healthy
+      redis-cluster-3:
+        condition: service_healthy
+    command: >
+      bash -c "redis-cli --cluster create redis-cluster:7000 redis-cluster-2:7001 redis-cluster-3:7002 --cluster-replicas 0 --cluster-yes"
+    networks:
+      - whiteboard-network
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  haproxy:
+    image: haproxy:latest
+    ports:
+      - "8888:8080"  # Changed to avoid conflict with whiteboard servers
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - whiteboard-server1
+      - whiteboard-server2
+
+
+  whiteboard-server1:
+    build: .
+    environment:
+      - REDIS_NODES=redis-cluster:7000,redis-cluster:7001,redis-cluster:7002
+      - METRICS_PORT=8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis-cluster-init:
+        condition: service_completed_successfully
+    networks:
+      - whiteboard-network
+
+  whiteboard-server2:
+    build: .
+    environment:
+      - REDIS_NODES=redis-cluster:7000,redis-cluster:7001,redis-cluster:7002
+      - METRICS_PORT=8001
+    ports:
+      - "8001:8000"
+    depends_on:
+      redis-cluster-init:
+        condition: service_completed_successfully
+    networks:
+      - whiteboard-network
 
 networks:
-  servernet:
+  whiteboard-network:
     driver: bridge
 
-  # client:
-  #   build: .
-  #   command: python client.py
-
+volumes:
+  grafana_data:
