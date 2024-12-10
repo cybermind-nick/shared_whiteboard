@@ -5,7 +5,7 @@ metadata:
   labels:
     app: whiteboard-server
 spec:
-  replicas: 4
+  # replicas: 4
   selector:
     matchLabels:
       app: whiteboard-server
@@ -26,6 +26,11 @@ spec:
             value: redis
           - name: REDIS_PORT
             value: "6379"
+          resources:
+            requests:
+              cpu: "250m"
+            limits:
+              cpu: "500m"
           ports:
             - containerPort: 5000
       # affinity:
