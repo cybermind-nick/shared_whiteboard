@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'whiteboard'
+    static_configs:
+      - targets: ['whiteboard-server1:8000', 'whiteboard-server2:8001']
+
